@@ -17,7 +17,7 @@ int main() {
 	//struct node a; //구조체 변수
 	//Node a;
 	//struct node* pNode; //구조체 포인터 변수
-	Node* pNode; //stack 영역
+	Node* pNode, * pNode1, * pHead;
 	myType n;// -> int n
 	static int a;
 	pNode = (Node *)malloc(sizeof(Node)); // malloc(원하는 Byte 수) heap 영역
@@ -26,8 +26,24 @@ int main() {
 	//a.data = 10;//a의 멤버 변수 data에 다시 접근해 10으로 초기화
 	//a.pNext = NULL;
 
+	pNode1 = (Node*)malloc(sizeof(Node)); // malloc(원하는 Byte 수) heap 영역
+	pNode1->data = 100; //멤버접근 heap 영역
+	pNode1->pNext = pNode; //멤버접근 heap 영역
+	pHead = pNode1;
+
 	//pNode = &a; //&a = address of a
-	printf("%d\n", pNode->data);//a의 멤버 변수 data를 접근하는 또다른 방법
+	//printf("%d\n", pNode->data);//a의 멤버 변수 data를 접근하는 또다른 방법
+	Node* index = pHead;
+
+	while (true) {
+		
+		printf("data is %d\n", index->data);
+		
+		if (index->pNext == NULL) {
+			break;
+		}
+		index = index->pNext;
+	}
 
 	return 0;
 }

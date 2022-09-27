@@ -11,6 +11,7 @@ typedef struct node {
 	struct node* pNext;//link field, 
 } Node;
 
+
 //typedef struct node Node;//앞으로 Node는 struct node이다.
 typedef int myType; //앞으로 myType이라는 자료형은 int형이다.
 int main() {
@@ -33,16 +34,11 @@ int main() {
 
 	//pNode = &a; //&a = address of a
 	//printf("%d\n", pNode->data);//a의 멤버 변수 data를 접근하는 또다른 방법
-	Node* index = pHead;
 
-	while (true) {
-		
-		printf("data is %d\n", index->data);
-		
-		if (index->pNext == NULL) {
-			break;
-		}
-		index = index->pNext;
+	pNode = pHead;// 1.loop 변수 초기화
+	while (pNode != NULL) { // 2.loop 조건식
+		printf("data = %d\n", pNode->data); // 3.loop 문장
+		pNode = pNode->pNext; // 4.loop변수 변화
 	}
 
 	return 0;

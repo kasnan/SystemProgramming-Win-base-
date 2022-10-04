@@ -66,16 +66,14 @@ int main() {
 	//struct node* pNode; //구조체 포인터 변수
 	Node* pNode, * pNode1, * pHead;
 
-	pNode = createNode(-1);
+	/*pNode = createNode(-1);
 	printf("pNode data : %d\n", pNode->data);
 	test(1, &pNode);
-	printf("pNode data : %d\n", pNode->data);
-
-
-	pHead = createNode(10);
+	printf("pNode data : %d\n", pNode->data);*/
 	
+	pHead = NULL; //pHead가 NULL이면 빈 Linked List라고 약속
+	pHead = createNode(10);
 	insertHead(100, &pHead);
-
 	printLL(pHead);
 	printf("Program End\n");
 

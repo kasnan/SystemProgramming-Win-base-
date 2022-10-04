@@ -6,6 +6,7 @@
 //	struct node* pNext;//link field, 
 //} ;
 
+
 typedef struct node {
 	int data;//data filed, 멤버변수
 	struct node* pNext;//link field, 
@@ -44,12 +45,19 @@ Node* createNode(int value) {
 //함수명 : inserNode()
 //입력 : 데이터 값, linked list의 Head 포인터
 //출력 : 없음
-void insertNode(int val, Node* pHead) {
+void insertHead(int val, Node** ppHead) {
 	Node* pNode = createNode(val);
-	pNode->pNext = pHead;  //#1
-	pHead = pNode; //#2
+	pNode->pNext = *ppHead;  //#1
+	*ppHead = pNode; //#2
 	
-	
+}
+
+//함수명 :test()
+//입력 : 노드 포인터 pNode
+//출력 : 없음
+void test(int val, Node** ppNode) {
+	Node* pNode1 = createNode(val);
+	*ppNode = pNode1;
 }
 
 int main() {
@@ -58,8 +66,15 @@ int main() {
 	//struct node* pNode; //구조체 포인터 변수
 	Node* pNode, * pNode1, * pHead;
 
+	pNode = createNode(-1);
+	printf("pNode data : %d\n", pNode->data);
+	test(1, &pNode);
+	printf("pNode data : %d\n", pNode->data);
+
+
 	pHead = createNode(10);
-	insertNode(100, pHead);
+	
+	insertHead(100, &pHead);
 
 	printLL(pHead);
 	printf("Program End\n");

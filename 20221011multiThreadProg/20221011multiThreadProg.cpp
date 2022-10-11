@@ -24,6 +24,17 @@
  //3. calling convention(함수호출방법) WINAPI
 DWORD WINAPI ThreadFunc(LPVOID);// LPVOID ==> typedef void* LPVOID , DWORD ==> typedef long DWORD
 //대부분의 대문자 단어는 마이크로소프트사가 정의한 자료형이다.
+
+#define SingleThread //전처리기 : 만약 SingleThread가 define되어 있으면
+
+#ifdef SingleThread
+int main() {
+    ThreadFunc((LPVOID)10);
+
+    return 0;
+}
+
+#else //그렇지 않으면
 int main()
 {
     HANDLE hThrd; //
@@ -47,17 +58,19 @@ int main()
     // Wait for the threads to complete.
     // We'll see a better way of doing this later.
     //Sleep(2000); //wait for 2000ms
-    Sleep(20000);
+    Sleep(10000);
 
     return EXIT_SUCCESS;
 }
+#endif
 
 DWORD WINAPI ThreadFunc(LPVOID in) //실제 작동 코드
 {
-    int i;
+    int i=-999999;
     int n = (int)in;
-    for (i = 0; i < 10000; i++)
-        printf("%d%d%d%d%d%d%d%d\n", n, n, n, n, n, n, n, n);
+    while (1) {
+        i += 10;
+    }
     return 0;
 }
 

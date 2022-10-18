@@ -25,7 +25,7 @@
 DWORD WINAPI ThreadFunc(LPVOID);// LPVOID ==> typedef void* LPVOID , DWORD ==> typedef long DWORD
 //대부분의 대문자 단어는 마이크로소프트사가 정의한 자료형이다.
 
-#define SingleThread //전처리기 : 만약 SingleThread가 define되어 있으면
+#define SingleThread //전처리기로 조건 처리, 만약 SingleThread가 define되어 있으면
 
 #ifdef SingleThread
 int main() {

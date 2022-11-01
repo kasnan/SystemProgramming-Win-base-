@@ -1,4 +1,5 @@
 ﻿#define WIN32_LEAN_AND_MEAN //??
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <windows.h> //windows API를 사용하려면 반드시 포함
@@ -64,6 +65,7 @@ int main()
         printf("all signaled !!!\n");
     else
         printf("serious problem !!!\n");
+
 
 
 

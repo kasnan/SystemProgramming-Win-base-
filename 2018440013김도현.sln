@@ -25,6 +25,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "20221011multiThreadProg", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "20221018multiThread", "20221018multiThread\20221018multiThread.vcxproj", "{34E300CA-E030-4B82-985F-E74EED1D7C6A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "20221101multi", "20221101multi\20221101multi.vcxproj", "{608114F3-D339-4BA2-B32B-CED896D60983}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -121,6 +123,14 @@ Global
 		{34E300CA-E030-4B82-985F-E74EED1D7C6A}.Release|x64.Build.0 = Release|x64
 		{34E300CA-E030-4B82-985F-E74EED1D7C6A}.Release|x86.ActiveCfg = Release|Win32
 		{34E300CA-E030-4B82-985F-E74EED1D7C6A}.Release|x86.Build.0 = Release|Win32
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Debug|x64.ActiveCfg = Debug|x64
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Debug|x64.Build.0 = Debug|x64
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Debug|x86.ActiveCfg = Debug|Win32
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Debug|x86.Build.0 = Debug|Win32
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Release|x64.ActiveCfg = Release|x64
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Release|x64.Build.0 = Release|x64
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Release|x86.ActiveCfg = Release|Win32
+		{608114F3-D339-4BA2-B32B-CED896D60983}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

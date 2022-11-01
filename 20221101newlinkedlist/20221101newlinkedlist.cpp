@@ -37,7 +37,7 @@ Node* createNode(int value) {
     return ptr;
 }
 void printLL(List* pList) {
-    Node* ptr = pList->pHead;
+    Node* ptr = pList->pHead; //pList의 pHead를 받아온다.
     while (ptr != NULL) {
         printf("data = %d\n", ptr->data);
         ptr = ptr->pNext;
@@ -73,7 +73,7 @@ int main()
     List list;
     List* pList = &list;
     pList->pHead = NULL;
-    clock_t start = clock();
+    clock_t start = clock();//현재시간을 start변수에 저장
 
     for (i = 0; i < 5; i++)
     {

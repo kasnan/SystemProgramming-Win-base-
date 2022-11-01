@@ -32,9 +32,9 @@ typedef struct list {
 //입력: 없음
 //출력: List 구조체의 객체를 생성하여 이 포인터를 반환
 List* createList() {
-    List* pList = (List*)malloc(sizeof(List));
+    List* pList = (List*)malloc(sizeof(List)); //list 초기화
     pList->pHead = NULL;
-    InitializeCriticalSection(&(pList->criticalSection)); //CS 객체 초기화
+    InitializeCriticalSection(&(pList->criticalSection)); //Critical Section 초기화
     return pList;
 }
 //함수: deleteList()
@@ -77,11 +77,11 @@ int countNode(List* pList) {
 //함수: insertHead()
 //입력: 헤드노드포인터, 새 노드 포인터
 //출력: 없음
-void insertHead(List* pList, Node* newNode) {
-    EnterCriticalSection(&(pList->criticalSection));//깃발확인, 깃발 올려
+void insertHead(List* pList, Node* newNode) { //깃발올라가 있는 상태 : Signaled State, 깃발 내려가있는 상태 : Unsignaled State
+    EnterCriticalSection(&(pList->criticalSection));//깃발확인, 만약 깃발이 올라가 있으면 다음 문장으로 가고 깃발을 내린다. 깃발이 내려가 있으면 올라갈때까지 대기한다.
     newNode->pNext = pList->pHead; //#1
     pList->pHead = newNode; //#2
-    LeaveCriticalSection(&(pList->criticalSection));//깃발 내려
+    LeaveCriticalSection(&(pList->criticalSection));//깃발을 올린다.
 }
 
 DWORD WINAPI ThreadFunc(LPVOID);// LPVOID ==> void*

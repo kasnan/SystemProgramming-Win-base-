@@ -29,7 +29,7 @@ typedef struct node {
 //구조체 List
 typedef struct list {
     Node* pHead;
-    HANDLE hEvent;//깃발 추가
+    HANDLE hMutex;//깃발 추가 : mutex handle
 } List;
 //함수: createList()
 //입력: 없음
@@ -37,14 +37,16 @@ typedef struct list {
 List* createList() {
     List* pList = (List*)malloc(sizeof(List));
     pList->pHead = NULL;
-    pList->hEvent = CreateMutex(NULL, FALSE, NULL); //mutex 초기화
+    pList->hMutex = CreateMutex(NULL, FALSE, NULL); //mutex 초기화
+    //2번째 인수=FALSE -> 누구든지 가져가(signaled)
+    //TRUE -> ,초기화와 동시에 내가 가져감(nonsignaled)
     return pList;
 }
 //함수: deleteList()
 // 입력: 리스트 포인터
 // 출력: 없음
 void deleteList(List* pList) {
-    CloseHandle(pList->hEvent);
+    CloseHandle(pList->hMutex);
     free(pList);
 }
 //함수: createNode()
@@ -81,14 +83,14 @@ int countNode(List* pList) {
 //입력: 헤드노드포인터, 새 노드 포인터
 //출력: 없음
 void insertHead(List* pList, Node* newNode) {
-    WaitForSingleObject(pList->hEvent, INFINITE);//깃발확인, 깃발 올려
+    WaitForSingleObject(pList->hMutex, INFINITE);//깃발확인, 깃발 올려
     //위의 함수는 현재 뮤텍스가 nonsignaled상태인 경우,signaled 상태가 될 때까지 기다린다.
     //만약 뮤텍스의 상태가 signaled로 변하면, 
     //  1.다음 문장으로 넘어간다.
     //  2. 뮤텍스의 상태를 nonsignaled 상태로 만든다. (부수효과: Side Effect)
     newNode->pNext = pList->pHead; //#1
     pList->pHead = newNode; //#2
-    ReleaseMutex(pList->hEvent);//뮤텍스의 상태를 signaled로 바꾼다.
+    ReleaseMutex(pList->hMutex);//뮤텍스의 상태를 signaled로 바꾼다.
 }
 
 DWORD WINAPI ThreadFunc(LPVOID);// LPVOID ==> void*
@@ -98,7 +100,7 @@ int main()
     HANDLE hThrd[5];
     DWORD threadId;
     int i;
-    List* pList = createList();
+    List* pList = createList();//primary thread에서 list 생성
     clock_t start = clock();
 
     for (i = 0; i < 5; i++)

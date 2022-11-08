@@ -27,15 +27,15 @@ typedef struct node {
     struct node* pNext;
 } Node;
 //구조체 List
-typedef struct list {
+typedef struct LinkedList {
     Node* pHead;
     HANDLE hMutex;//깃발 추가 : mutex handle
 } List;
 //함수: createList()
 //입력: 없음
 //출력: List 구조체의 객체를 생성하여 이 포인터를 반환
-List* createList() {
-    List* pList = (List*)malloc(sizeof(List));
+LinkedList* createList() {
+    LinkedList* pList = (LinkedList*)malloc(sizeof(LinkedList));
     pList->pHead = NULL;
     pList->hMutex = CreateMutex(NULL, FALSE, NULL); //mutex 초기화
     //2번째 인수=FALSE -> 누구든지 가져가(signaled)
@@ -45,7 +45,7 @@ List* createList() {
 //함수: deleteList()
 // 입력: 리스트 포인터
 // 출력: 없음
-void deleteList(List* pList) {
+void deleteList(LinkedList* pList) {
     CloseHandle(pList->hMutex);
     free(pList);
 }
@@ -60,7 +60,7 @@ Node* createNode(int value) {
     ptr->pNext = NULL;
     return ptr;
 }
-void printLL(List* pList) {
+void printLL(LinkedList* pList) {
     Node* ptr = pList->pHead;
     while (ptr != NULL) {
         printf("data = %d\n", ptr->data);
@@ -70,7 +70,7 @@ void printLL(List* pList) {
 //함수: countNode()
 //입력: pHead
 //출력: 노드 갯수
-int countNode(List* pList) {
+int countNode(LinkedList* pList) {
     Node* ptr = pList->pHead;
     int count = 0;
     while (ptr != NULL) {
@@ -82,7 +82,7 @@ int countNode(List* pList) {
 //함수: insertHead()
 //입력: 헤드노드포인터, 새 노드 포인터
 //출력: 없음
-void insertHead(List* pList, Node* newNode) {
+void insertHead(LinkedList* pList, Node* newNode) {
     WaitForSingleObject(pList->hMutex, INFINITE);//깃발확인, 깃발 올려
     //위의 함수는 현재 뮤텍스가 nonsignaled상태인 경우,signaled 상태가 될 때까지 기다린다.
     //만약 뮤텍스의 상태가 signaled로 변하면, 
@@ -100,7 +100,7 @@ int main()
     HANDLE hThrd[5];
     DWORD threadId;
     int i;
-    List* pList = createList();//primary thread에서 list 생성
+    LinkedList* pList = createList();//primary thread에서 list 생성
     clock_t start = clock();
 
     for (i = 0; i < 5; i++)
@@ -136,7 +136,7 @@ int main()
 DWORD WINAPI ThreadFunc(LPVOID ptr)
 {
 
-    List* pList = (List*)ptr;
+    LinkedList* pList = (LinkedList*)ptr;
     for (int i = 0; i < 1000000; i++)
         insertHead(pList, createNode(100));
     return 0;

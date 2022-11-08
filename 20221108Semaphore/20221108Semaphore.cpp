@@ -1,18 +1,6 @@
-﻿// 20211110criticalsectionObject.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
+﻿// 20211117Semaphore.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
 //
-// 20211110criticalsection.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
-//
-// 20211103linkedlist.cpp : 이 파일에는 'main' 함수가 포함됩니다. 거기서 프로그램 실행이 시작되고 종료됩니다.
-//
-
-/*
-1. Linked list 구조체 정의
-2. 모든 함수 재정의
-3. race condition 데모
-4. critical setion을 사용한 동기화
- */
-
-#define WIN32_LEAN_AND_MEAN
+//#define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -24,24 +12,24 @@ typedef struct node {
     struct node* pNext;
 } Node;
 //구조체 List
-typedef struct LinkedList {
+typedef struct list {
     Node* pHead;
-    CRITICAL_SECTION criticalSection;//깃발 추가
+    HANDLE hEvent;//깃발 추가
 } List;
 //함수: createList()
 //입력: 없음
 //출력: List 구조체의 객체를 생성하여 이 포인터를 반환
-LinkedList* createList() {
-    LinkedList* pList = (LinkedList*)malloc(sizeof(LinkedList)); //list 초기화
+List* createList() {
+    List* pList = (List*)malloc(sizeof(List));
     pList->pHead = NULL;
-    InitializeCriticalSection(&(pList->criticalSection)); //Critical Section 초기화
+    pList->hEvent = CreateSemaphore(NULL, 1, 1, NULL); //semaphore 초기화
     return pList;
 }
 //함수: deleteList()
 // 입력: 리스트 포인터
 // 출력: 없음
-void deleteList(LinkedList* pList) {
-    DeleteCriticalSection(&(pList->criticalSection));
+void deleteList(List* pList) {
+    CloseHandle(pList->hEvent);
     free(pList);
 }
 //함수: createNode()
@@ -55,7 +43,7 @@ Node* createNode(int value) {
     ptr->pNext = NULL;
     return ptr;
 }
-void printLL(LinkedList* pList) {
+void printLL(List* pList) {
     Node* ptr = pList->pHead;
     while (ptr != NULL) {
         printf("data = %d\n", ptr->data);
@@ -65,7 +53,7 @@ void printLL(LinkedList* pList) {
 //함수: countNode()
 //입력: pHead
 //출력: 노드 갯수
-int countNode(LinkedList* pList) {
+int countNode(List* pList) {
     Node* ptr = pList->pHead;
     int count = 0;
     while (ptr != NULL) {
@@ -77,11 +65,11 @@ int countNode(LinkedList* pList) {
 //함수: insertHead()
 //입력: 헤드노드포인터, 새 노드 포인터
 //출력: 없음
-void insertHead(LinkedList* pList, Node* newNode) { //깃발올라가 있는 상태 : Signaled State, 깃발 내려가있는 상태 : Unsignaled State
-    EnterCriticalSection(&(pList->criticalSection));//깃발확인, 만약 깃발이 올라가 있으면 다음 문장으로 가고 깃발을 내린다. 깃발이 내려가 있으면 올라갈때까지 대기한다.
+void insertHead(List* pList, Node* newNode) {
+    WaitForSingleObject(pList->hEvent, INFINITE);//깃발확인, 깃발이 올라가 있으면 (sinaled), 깃발을 내리고 다음 문자을 수행 
     newNode->pNext = pList->pHead; //#1
     pList->pHead = newNode; //#2
-    LeaveCriticalSection(&(pList->criticalSection));//깃발을 올린다.
+    ReleaseSemaphore(pList->hEvent, 1, NULL);//깃발 올려
 }
 
 DWORD WINAPI ThreadFunc(LPVOID);// LPVOID ==> void*
@@ -91,7 +79,7 @@ int main()
     HANDLE hThrd[5];
     DWORD threadId;
     int i;
-    LinkedList* pList = createList();
+    List* pList = createList();
     clock_t start = clock();
 
     for (i = 0; i < 5; i++)
@@ -127,8 +115,8 @@ int main()
 DWORD WINAPI ThreadFunc(LPVOID ptr)
 {
 
-    LinkedList* pList = (LinkedList*)ptr;
-    for (int i = 0; i < 1000000; i++)
+    List* pList = (List*)ptr;
+    for (int i = 0; i < 100; i++)
         insertHead(pList, createNode(100));
     return 0;
 }

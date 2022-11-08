@@ -15,17 +15,17 @@ typedef struct node {
 	int data;
 	struct node* pNext;
 } Node;
-typedef struct linkedList {
+typedef struct List {
 	Node* pHead;
 	CRITICAL_SECTION critical_sec;
 	int dummy;
-} LinkedList;
+} List;
 
 //함수 printLL()
 //입력: Linked List의 포인터
 //출력: 없음
 //부수효과: 화면에 Linked List 데이터 값을 출력한다.
-void printLL(LinkedList* pLL) {
+void printLL(List* pLL) {
 	Node* pNode;
 	pNode = pLL->pHead;
 	while (pNode != NULL) {
@@ -33,7 +33,7 @@ void printLL(LinkedList* pLL) {
 		pNode = pNode->pNext;
 	}
 }
-int countNode(LinkedList* pLL) {
+int countNode(List* pLL) {
 	Node* pNode;
 	pNode = pLL->pHead;
 	int num = 0;
@@ -58,7 +58,7 @@ Node* createNode(int num) {
 //입력: linked list(포인터), 노드(포인터)
 //출력: 없음
 //부수효과: linked list 맨 앞에 입력한 노드를 삽입
-void addHead(LinkedList* pLL, Node* pNode) {
+void addHead(List* pLL, Node* pNode) {
 	EnterCriticalSection(&pLL->critical_sec);
 	pNode->pNext = pLL->pHead;
 	pLL->pHead = pNode;
@@ -68,9 +68,9 @@ void addHead(LinkedList* pLL, Node* pNode) {
 //입력: 없음
 //출력: linked list(포인터)
 //부수효과: 동적메모리할당으로 linked list공간 사용
-LinkedList* createLinkedList() {
-	LinkedList* pLL;
-	pLL = (LinkedList*)malloc(sizeof(LinkedList));
+List* createLinkedList() {
+	List* pLL;
+	pLL = (List*)malloc(sizeof(List));
 	pLL->pHead = NULL;
 	InitializeCriticalSection(&pLL->critical_sec);
 	return pLL;
@@ -79,16 +79,18 @@ LinkedList* createLinkedList() {
 //입력: Linked List(포인터)
 //출력: 없음
 //부수효과: linked list의 맨 처음 노드를 삭제
-void deleteHead(LinkedList* pLL) {
+void deleteHead(List* pLL) {
 	Node* pNode = pLL->pHead;
 	if (pLL->pHead == NULL) return;
 	pLL->pHead = pLL->pHead->pNext;
 	free(pNode);
 }
-void swapLists(LinkedList* list1, LinkedList* list2, int thread) {
-	LinkedList* tmp_list = createLinkedList();
+void swapLists(List* list1, List* list2, int thread) {
+	List* tmp_list = createLinkedList();
 	EnterCriticalSection(&list1->critical_sec);//possible context switch
-	printf("========between line in thread %d\n ", thread);
+	printf("========between line in thread %d\n ", thread); 
+	//for (int i = 0; i < 1000; i++)
+		//1 + 2 + 3;
 	EnterCriticalSection(&list2->critical_sec);
 	tmp_list->pHead = list1->pHead;
 	list1->pHead = list2->pHead;
@@ -97,7 +99,8 @@ void swapLists(LinkedList* list1, LinkedList* list2, int thread) {
 	LeaveCriticalSection(&list2->critical_sec);
 }
 
-LinkedList* pLL1, * pLL2;//global for demo's sake!!! sorry
+
+List* pLL1, * pLL2;//global for demo's sake!!! sorry
 DWORD WINAPI ThreadFunc1(LPVOID n) {
 	while (1) {
 		printf("begin swapping in Thread11111\n");
@@ -131,7 +134,7 @@ int main() {
 	hThrd[1] = CreateThread(NULL, 0, ThreadFunc2, (LPVOID)i, 0, &threadId);
 
 	WaitForMultipleObjects(2, hThrd, true, INFINITE);
-	for (i = 0; i < 2; i++) {
+	for (i = 0; i < 5; i++) {
 		CloseHandle(hThrd[i]);
 	}
 	printf("End of Program!!!\n");

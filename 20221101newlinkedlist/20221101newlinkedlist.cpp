@@ -22,7 +22,7 @@ typedef struct node {
     struct node* pNext;
 } Node;
 //구조체 List
-typedef struct list {
+typedef struct LinkedList {
     Node* pHead;
 } List;
 //함수: createNode()
@@ -36,7 +36,7 @@ Node* createNode(int value) {
     ptr->pNext = NULL;
     return ptr;
 }
-void printLL(List* pList) {
+void printLL(LinkedList* pList) {
     Node* ptr = pList->pHead; //pList의 pHead를 받아온다.
     while (ptr != NULL) {
         printf("data = %d\n", ptr->data);
@@ -46,7 +46,7 @@ void printLL(List* pList) {
 //함수: countNode()
 //입력: pHead
 //출력: 노드 갯수
-int countNode(List* pList) {
+int countNode(LinkedList* pList) {
     Node* ptr = pList->pHead;
     int count = 0;
     while (ptr != NULL) {
@@ -58,7 +58,7 @@ int countNode(List* pList) {
 //함수: insertHead()
 //입력: 헤드노드포인터, 새 노드 포인터
 //출력: 없음
-void insertHead(List* pList, Node* newNode) {
+void insertHead(LinkedList* pList, Node* newNode) {
     newNode->pNext = pList->pHead; //#1
     pList->pHead = newNode; //#2
 }
@@ -70,8 +70,8 @@ int main()
     HANDLE hThrd[5];
     DWORD threadId;
     int i;
-    List list;
-    List* pList = &list;
+    LinkedList list;
+    LinkedList* pList = &list;
     pList->pHead = NULL;
     clock_t start = clock();//현재시간을 start변수에 저장
 
@@ -108,7 +108,7 @@ int main()
 DWORD WINAPI ThreadFunc(LPVOID ptr)
 {
 
-    List* pList = (List*)ptr;
+    LinkedList* pList = (LinkedList*)ptr;
     for (int i = 0; i < 1000000; i++)
         insertHead(pList, createNode(100));
     return 0;

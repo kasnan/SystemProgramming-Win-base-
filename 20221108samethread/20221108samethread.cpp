@@ -11,15 +11,15 @@ int main() {
 	InitializeCriticalSection(&cs1);//수행 후 깃발이 올라가 있음(signaled 들어올 수 있음)
 	EnterCriticalSection(&cs1);//수행 후 깃발을 내림 (nonsignaled 못 들어옴)
 	printf("we are taking cs1\n");
-	EnterCriticalSection(&cs1);//????
+	EnterCriticalSection(&cs1);//동일 Thread 내에서 통과!
 	printf("we are taking cs1?????\n");
 
 	//Mutex
 	HANDLE hM;
-	hM = CreateMutex(NULL, FALSE, NULL);
-	WaitForSingleObject(hM, INFINITE);
+	hM = CreateMutex(NULL, FALSE, NULL); //signaled 초기화
+	WaitForSingleObject(hM, INFINITE); //side Effect: ->nonsignaled
 	printf("we are taking hM\n");
-	WaitForSingleObject(hM, INFINITE);
+	WaitForSingleObject(hM, INFINITE); //동일 Thread 내에서 통과!
 	printf("we are taking hM\n");
 
 	return 0;

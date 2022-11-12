@@ -167,6 +167,7 @@ DWORD WINAPI ThreadFuncnew2(LPVOID n) {
 	}
 	return 0;
 }
+
 int main() {
 	HANDLE hThrd[5];
 	DWORD threadId;

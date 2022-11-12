@@ -89,6 +89,9 @@ Listpair* initListPair() {
 	pLP = (Listpair*)malloc(sizeof(Listpair));
 	pLP->pLL1 = NULL;
 	pLP->pLL2 = NULL;
+	pLP->pLL1 = createLinkedList();
+	pLP->pLL2 = createLinkedList();
+
 	pLP->hMutex = CreateMutex(NULL, FALSE, NULL);
 	return pLP;
 }
@@ -169,10 +172,10 @@ int main() {
 	DWORD threadId;
 	int i = 0;
 	Listpair* pLP = initListPair();
-	pLP->pLL1 = createLinkedList();
-	pLP->pLL2 = createLinkedList();
+	
 	addHead(pLP->pLL1, createNode((int)1));//pLL1은 data가 1인 노드 하나를 가진다
 	addHead(pLP->pLL2, createNode((int)2));//pLL2는 data가 2인 노드 하나를 가진다
+
 	printLL(pLP->pLL1);// 출력: data = 1 
 	swapLists(pLP, 100);
 	printLL(pLP->pLL1);// 출력: data = 2

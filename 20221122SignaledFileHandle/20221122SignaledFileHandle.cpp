@@ -44,11 +44,6 @@ int main()
     WCHAR szPath[MAX_PATH] = L"c:\\test.mp4";//200mbyte 이상
     //char szPath[MAX_PATH];
 
- //   CheckOsVersion();
-
-    //GetWindowsDirectory(szPath, sizeof(szPath));
-    //strcat(szPath, "\\WINHLP32.EXE");
-    // Open the file for overlapped reads
     hFile = CreateFile(szPath,
         GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
@@ -59,7 +54,7 @@ int main()
     );
     if (hFile == INVALID_HANDLE_VALUE)
     {
-        //       printf("Could not open %s\n", szPath);
+        printf("Could not open %s\n", szPath);
         return -1;
     }
 
@@ -87,7 +82,7 @@ int main()
     else //re==False
     {
         if (GetLastError() == ERROR_IO_PENDING)
-        //아직도 처리를 진행중인 경우
+            //아직도 처리를 진행중인 경우
         {
             // We could do something else for awhile here...
 

@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{c19118f1-1478-4d5f-994b-4d2b90a9cad6}</ProjectGuid>
-    <RootNamespace>My20221122HW3</RootNamespace>
+    <ProjectGuid>{7c24240d-2237-4cf2-a0d7-13613d55d499}</ProjectGuid>
+    <RootNamespace>HW3</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,7 +127,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="20221122HW3.cpp" />
+    <ClCompile Include="HW3.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

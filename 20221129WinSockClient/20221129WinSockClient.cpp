@@ -27,8 +27,8 @@ int __cdecl main(int argc, char** argv)
     char recvbuf[DEFAULT_BUFLEN];
     int iResult;
     int recvbuflen = DEFAULT_BUFLEN;
-
-    // Validate the parameters
+    
+    // Validate the parameters 패러미터를 더 입력!
     if (argc != 2) {
         printf("usage: %s server-name\n", argv[0]);
         return 1;
@@ -57,6 +57,7 @@ int __cdecl main(int argc, char** argv)
     // Attempt to connect to an address until one succeeds
     for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
 
+        //소켓 생성
         // Create a SOCKET for connecting to server
         ConnectSocket = socket(ptr->ai_family, ptr->ai_socktype,
             ptr->ai_protocol);
@@ -66,6 +67,7 @@ int __cdecl main(int argc, char** argv)
             return 1;
         }
 
+        // 서버에 연결 요청
         // Connect to server.
         iResult = connect(ConnectSocket, ptr->ai_addr, (int)ptr->ai_addrlen);
         if (iResult == SOCKET_ERROR) {

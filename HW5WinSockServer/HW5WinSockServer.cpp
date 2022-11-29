@@ -7,7 +7,7 @@
 #include <ws2tcpip.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <string.h>
 // Need to link with Ws2_32.lib
 #pragma comment (lib, "Ws2_32.lib") //link할 때 default로는 Ws2_32.lib가 안들어가 추가하기 위한 전처리 코드
 // #pragma comment (lib, "Mswsock.lib")
@@ -27,8 +27,14 @@ int __cdecl main(void)
     struct addrinfo hints;
 
     int iSendResult;
-    char recvbuf[DEFAULT_BUFLEN]; //receive buffer
-    int recvbuflen = DEFAULT_BUFLEN;
+    int err;
+
+    char sendbuf[] = "req";
+    char recvbuf[DEFAULT_BUFLEN] = "";
+    bool isCheck;
+    
+    //char* recvbuf;
+
 
     //winsock을 사용하기 위해 맨 처음 실행해야 한다. : Startup
     // Initialize Winsock
@@ -91,41 +97,67 @@ int __cdecl main(void)
         WSACleanup();
         return 1;
     }
+    printf("accepted!\n");
     // listening socket닫기
     // 연결을 복수로 계속 받는 경우 listensocket을 닫으면 안된다.
     // No longer need server socket
     closesocket(ListenSocket);
     // 클라이언트와 데이터 교환
     // Receive until the peer shuts down the connection
-    do {
+    while (true){
+        OVERLAPPED SocOverlapped = {};
         //숙제 : recv, send -> readfile, writefile로 변경하기
         // 상대방에게서 연결 종료 요청이 오면 0을 반환한다.
-        iResult = recv(ClientSocket, recvbuf, recvbuflen, 0);
-        if (iResult > 0) {
-            printf("Bytes received: %d\n", iResult);
-
-            // Echo the buffer back to the sender <EchoServer>
-            iSendResult = send(ClientSocket, recvbuf, iResult, 0);
-            if (iSendResult == SOCKET_ERROR) {
-                printf("send failed with error: %d\n", WSAGetLastError());
-                closesocket(ClientSocket);
-                WSACleanup();
-                return 1;
-            }
-            printf("Bytes sent: %d\n", iSendResult);
-        }
-        else if (iResult == 0) {
-            printf("recv %s", recvbuf);
-            printf("Connection closing...\n");
+        
+ 
+        printf("read socket\n");
+        isCheck = ReadFile((HANDLE)ClientSocket, (LPVOID)recvbuf, (DWORD)DEFAULT_BUFLEN,
+            NULL, &SocOverlapped);
+        WaitForSingleObject((HANDLE)ClientSocket, INFINITE);
+        
+        err = WSAGetLastError();
+        if (isCheck || err == WSA_IO_PENDING) {
+            printf("Received Message : %s\n", recvbuf);
         }
         else {
-            printf("recv failed with error: %d\n", WSAGetLastError());
+            printf("Receive failed with error: %d\n", err);
             closesocket(ClientSocket);
             WSACleanup();
             return 1;
         }
-
-    } while (iResult > 0);
+        
+        err = 0;
+        if (!strcmp(recvbuf, "z")) {
+            isCheck = WriteFile((HANDLE)ClientSocket, (LPVOID)"readyforshutdown", (DWORD)DEFAULT_BUFLEN,
+                NULL, &SocOverlapped);
+            WaitForSingleObject((HANDLE)ClientSocket, INFINITE);
+            err = WSAGetLastError();
+            if (isCheck || err == WSA_IO_PENDING) {
+                printf("Bytes Sent :%s\n", "readyforshutdown");
+            }
+            else {
+                printf("send failed with error-code: %d\n", WSAGetLastError());
+                closesocket(ClientSocket);
+                WSACleanup();
+                return 1;
+            }
+            break;
+        }
+        isCheck = WriteFile((HANDLE)ClientSocket, (LPVOID)sendbuf, (DWORD)DEFAULT_BUFLEN,
+            NULL, &SocOverlapped);
+        WaitForSingleObject((HANDLE)ClientSocket, INFINITE);
+        err = WSAGetLastError();
+        if (isCheck || err == WSA_IO_PENDING) {
+            printf("Bytes Sent :%s\n", sendbuf);
+        }
+        else {
+            printf("send failed with error-code: %d\n", WSAGetLastError());
+            closesocket(ClientSocket);
+            WSACleanup();
+            return 1;
+        }
+        
+    } 
 
     // shutdown the connection since we're done
     iResult = shutdown(ClientSocket, SD_SEND);
@@ -138,6 +170,8 @@ int __cdecl main(void)
 
     //맨 마지막은 소켓을 닫고 WSACleanup()을 호출해야 한다.
     // cleanup
+
+    printf("Connection Closed!\n");
     closesocket(ClientSocket);
     WSACleanup();
 

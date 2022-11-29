@@ -21,36 +21,34 @@
  //
  // Constants
  //
-#define MAX_REQUESTS    5
 #define READ_SIZE       512
-#define MAX_TRY_COUNT   5
 
 //
 // Function prototypes
 //
-int QueueRequest(int nIndex, DWORD dwLocation, DWORD dwAmount);
+int QueueRequest(DWORD dwAmount);
 
 //
 // Global variables
 //
-HANDLE  ghEvents[MAX_REQUESTS];
-HANDLE hFile;
-OVERLAPPED gOverlapped[MAX_REQUESTS];
-char gBuffers[MAX_REQUESTS][READ_SIZE];
 
+// Need to keep the events in their own array
+// so we can wait on them.
+HANDLE  ghEvents;
+// Keep track of each individual I/O operation
+OVERLAPPED gOverlapped;
+// Handle to the file of interest.
+HANDLE ghFile;
+// Need a place to put all this data
+char gBuffers[READ_SIZE];
 
 int main()
 {
-    int i;
-    BOOL rc;
-    
-    DWORD numread;
-    OVERLAPPED overlap;
-    char buf[READ_SIZE];
+    DWORD dwNumread;
     WCHAR szPath[MAX_PATH] = L"c:\\test.mp4";//200mbyte 이상
     //char szPath[MAX_PATH];
 
-    hFile = CreateFile(szPath,
+    ghFile = CreateFile(szPath,
         GENERIC_READ,
         FILE_SHARE_READ | FILE_SHARE_WRITE,
         NULL,
@@ -58,107 +56,83 @@ int main()
         FILE_FLAG_OVERLAPPED,//앞으로 모든 입출력은 비동기로 수행
         NULL
     );
-    if (hFile == INVALID_HANDLE_VALUE)
+    if (ghFile == INVALID_HANDLE_VALUE)
     {
         printf("Could not open %s\n", szPath);
         return -1;
     }
-    //나누어서 읽기
-    for (i = 0; i < MAX_REQUESTS; i++)
-    {
-        // Read some bytes every few K
-        QueueRequest(i, i * 16384, READ_SIZE);
-    }
 
-    MTVERIFY(WaitForMultipleObjects(
-        MAX_REQUESTS, ghEvents, TRUE, INFINITE
-    ) != WAIT_FAILED);
+    QueueRequest(READ_SIZE);
 
-    for (i = 0; i < MAX_REQUESTS; i++)
-    {
-        DWORD dwNumread;
+    MTVERIFY(WaitForSingleObject(
+        ghEvents,INFINITE) != WAIT_FAILED);
 
-        rc = GetOverlappedResult(
-            hFile,
-            &gOverlapped[i],
-            &dwNumread,
-            FALSE
-        );
-        printf("Read #%d returned %d. %d bytes were read.\n",
-            i, rc, dwNumread);
-        CloseHandle(gOverlapped[i].hEvent);
-    }
+    DWORD rc = GetOverlappedResult(
+        ghFile,
+        &gOverlapped,
+        &dwNumread,
+        FALSE
+    );
+    printf("Read returned %d. %d bytes were read.\n",
+        rc, dwNumread);
+    CloseHandle(gOverlapped.hEvent);
 
-
-    CloseHandle(hFile);
+    CloseHandle(ghFile);
 
     return EXIT_SUCCESS;
 }
 
-/*
- * Call ReadFile to start an overlapped request.
- * Make sure we handle errors that are recoverable.
- * Properly set up the event object for this operation.
- */
-int QueueRequest(int nIndex, DWORD dwLocation, DWORD dwAmount)
+
+int QueueRequest(DWORD dwAmount)
 {
-    int i;
     BOOL rc;
     DWORD dwNumread;
     DWORD err;
 
     MTVERIFY(
-        ghEvents[nIndex] = CreateEvent(
+        ghEvents = CreateEvent(
             NULL,    // No security
             TRUE,    // Manual reset - extremely important!
             FALSE,   // Initially set Event to non-signaled state
             NULL     // No name
         )
     );
-    gOverlapped[nIndex].hEvent = ghEvents[nIndex];
-    gOverlapped[nIndex].Offset = dwLocation;
+    gOverlapped.hEvent = ghEvents;
+    gOverlapped.Offset = 0;
 
-    for (i = 0; i < MAX_TRY_COUNT; i++)
+    rc = ReadFile(
+        ghFile,
+        gBuffers,
+        dwAmount,
+        &dwNumread,
+        &gOverlapped
+    );
+    printf("Issued read request\n");
+    // Handle success
+    if (rc)
     {
-        rc = ReadFile(
-            hFile,
-            gBuffers[nIndex],
-            dwAmount,
-            &dwNumread,
-            &gOverlapped[nIndex]
-        );
-
-        // Handle success
-        if (rc)
-        {
-            printf("Read #%d completed immediately.\n", nIndex);
-            return TRUE;
-        }
-
-        err = GetLastError();
-
-        // Handle the error that isn't an error. rc is zero here.
-        if (err == ERROR_IO_PENDING)
-        {
-            // asynchronous i/o is still in progress 
-            printf("Read #%d queued for overlapped I/O.\n", nIndex);
-            return TRUE;
-        }
-
-        // Handle recoverable error
-        if (err == ERROR_INVALID_USER_BUFFER ||
-            err == ERROR_NOT_ENOUGH_QUOTA ||
-            err == ERROR_NOT_ENOUGH_MEMORY)
-        {
-            Sleep(50);  // Wait around and try later
-            continue;
-        }
-
-        // Give up on fatal error.
-        break;
+        printf("Request was returned immediately\n");
+        return TRUE;
     }
 
+    err = GetLastError();
+
+    // Handle the error that isn't an error. rc is zero here.
+    if (err == ERROR_IO_PENDING)
+    {
+        // asynchronous i/o is still in progress 
+        printf("Read for overlapped I/O.\n");
+        return TRUE;
+    }
+
+    // Handle recoverable error
+    if (err == ERROR_INVALID_USER_BUFFER ||
+        err == ERROR_NOT_ENOUGH_QUOTA ||
+        err == ERROR_NOT_ENOUGH_MEMORY)
+    {
+        printf("Recoverable Error Reading File!\n");
+        Sleep(50);
+    }
     printf("ReadFile failed.\n");
     return -1;
 }
-

@@ -139,7 +139,7 @@ int QueueRequest(int nIndex, DWORD dwLocation, DWORD dwAmount)
             &dwNumread,
             &gOverlapped[nIndex]
         );
-
+        
         // Handle success
         if (rc)
         {
